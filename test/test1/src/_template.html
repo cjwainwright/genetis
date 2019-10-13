@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title itemprop="title"></title>
+</head>
+<body>
+    <nav>This | is | a | menu</nav>
+    <h1 itemprop="heading"></h1>
+    <main>
+        <aside>
+            <slot name="tldr"></slot>
+        </aside>
+        <slot></slot>
+    </main>
+    <footer>(c) me. Published <time itemprop="published" datetime=""></time></footer>
+</body>
+</html>
