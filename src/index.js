@@ -39,26 +39,7 @@ module.exports = async function build(options = {}) {
             if(path.basename(file) != options.templateName) {
                 let html = await fs.promises.readFile(file, options.fileEncoding);
 
-                // find all templates
-                let dir = path.dirname(file);
-                let hasRemaining = false;
-
-                const templates = [];
-                do {
-                    const template = path.join(dir, options.templateName);
-                    try {
-                         const content = await fs.promises.readFile(template, options.fileEncoding);
-                         templates.unshift(content);
-                    } catch(err) {
-                        if (err.code != 'ENOENT') {
-                            throw err;
-                        }
-                    }
-
-                    const remaining = path.relative(options.base, dir);
-                    hasRemaining = remaining != '' && remaining.indexOf('..') < 0;
-                    dir = path.join(dir, '../');
-                } while (hasRemaining)
+                const templates = await findTemplates(path.dirname(file), options.base, options.templateName, options.fileEncoding);
 
                 // include the current html in each template in turn
                 if(templates.length > 0) {
@@ -133,6 +114,29 @@ function include(doc, fragment) {
     if(defaultSlot) {
         defaultSlot.parentNode.replaceChild(fragment, defaultSlot);
     }
+}
+
+async function findTemplates(dir, base, templateName, encoding) {
+    let hasRemaining = false;
+
+    const templates = [];
+    do {
+        const template = path.join(dir, templateName);
+        try {
+             const content = await fs.promises.readFile(template, encoding);
+             templates.unshift(content);
+        } catch(err) {
+            if (err.code != 'ENOENT') {
+                throw err;
+            }
+        }
+
+        const remaining = path.relative(base, dir);
+        hasRemaining = remaining != '' && remaining.indexOf('..') < 0;
+        dir = path.join(dir, '../');
+    } while (hasRemaining)
+
+    return templates;
 }
 
 async function getFiles(include) {
