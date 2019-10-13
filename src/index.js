@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const url = require('url');
 const glob = require('glob');
 const rimraf = require('rimraf');
 const JSDOM = require('jsdom').JSDOM;
@@ -43,12 +44,18 @@ module.exports = async function build(options = {}) {
 
                 // include the current html in each template in turn
                 if(templates.length > 0) {
-                    templates.push(html);
+                    templates.push({
+                        relative: '',
+                        html
+                    });
                     const base = templates.shift();
-                    const dom = new JSDOM(base);
+                    const dom = new JSDOM(base.html);
+                    updateUrls(dom.window.document, base.relative);
 
                     templates.forEach(template => {
-                        include(dom.window.document, JSDOM.fragment(template));
+                        const fragment = JSDOM.fragment(template.html);
+                        updateUrls(fragment, base.relative);
+                        include(dom.window.document, fragment);
                     });
 
                     html = dom.serialize();
@@ -65,6 +72,34 @@ module.exports = async function build(options = {}) {
         }
     }));
 };
+
+function updateUrls(doc, relative) {
+    relative = relative.replace('\\', '/');
+    if(relative.indexOf('..') >= 0) {
+        relative += '/';
+    }
+
+    ['href', 'src'].forEach(attr => {
+        doc.querySelectorAll(`[${attr}]`).forEach(a => {
+            const url = a.getAttribute(attr);
+            if(isRelativeUrl(url)) {
+                const newUrl = mapUrl(url, relative);
+                console.log(`updating url for ${attr}: ${url} => ${newUrl}`);
+                a.setAttribute(attr, newUrl);
+            }
+        });
+    });
+}
+
+function isRelativeUrl(url) {
+    return (url.indexOf('http:') != 0) &&
+           (url.indexOf('https:') != 0) &&
+           (url.indexOf('/') != 0);
+}
+
+function mapUrl(value, relative) {
+    return url.resolve(relative, value);
+}
 
 function updateContent(element, value) {
     if(element.hasAttribute('content')) {
@@ -117,23 +152,28 @@ function include(doc, fragment) {
 }
 
 async function findTemplates(dir, base, templateName, encoding) {
-    let hasRemaining = false;
-
     const templates = [];
+    let currentDir = dir;
+    
+    let hasRemaining = false;
     do {
-        const template = path.join(dir, templateName);
+        const template = path.join(currentDir, templateName);
         try {
-             const content = await fs.promises.readFile(template, encoding);
-             templates.unshift(content);
+             const html = await fs.promises.readFile(template, encoding);
+             const relative = path.relative(dir, currentDir)
+             templates.unshift({
+                 relative,
+                 html
+             });
         } catch(err) {
             if (err.code != 'ENOENT') {
                 throw err;
             }
         }
 
-        const remaining = path.relative(base, dir);
+        const remaining = path.relative(base, currentDir);
         hasRemaining = remaining != '' && remaining.indexOf('..') < 0;
-        dir = path.join(dir, '../');
+        currentDir = path.join(currentDir, '../');
     } while (hasRemaining)
 
     return templates;
