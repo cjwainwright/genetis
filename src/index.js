@@ -50,13 +50,15 @@ module.exports = async function build(options = {}) {
                     });
                     const base = templates.shift();
                     const dom = new JSDOM(base.html);
-                    updateUrls(dom.window.document, base.relative);
+                    tagUrls(dom.window.document, base.relative);
 
                     templates.forEach(template => {
                         const fragment = JSDOM.fragment(template.html);
-                        updateUrls(fragment, base.relative);
+                        tagUrls(fragment, template.relative);
                         include(dom.window.document, fragment);
                     });
+
+                    updateUrls(dom.window.document);
 
                     html = dom.serialize();
                 }
@@ -73,7 +75,7 @@ module.exports = async function build(options = {}) {
     }));
 };
 
-function updateUrls(doc, relative) {
+function tagUrls(doc, relative) {
     relative = relative.replace('\\', '/');
     if(relative.indexOf('..') >= 0) {
         relative += '/';
@@ -82,13 +84,25 @@ function updateUrls(doc, relative) {
     ['href', 'src'].forEach(attr => {
         doc.querySelectorAll(`[${attr}]`).forEach(a => {
             const url = a.getAttribute(attr);
-            if(isRelativeUrl(url)) {
-                const newUrl = mapUrl(url, relative);
-                console.log(`updating url for ${attr}: ${url} => ${newUrl}`);
-                a.setAttribute(attr, newUrl);
+            if(!a.hasAttribute('data-link-relative') && isRelativeUrl(url)) {
+                console.log(`tagging url as relative for ${attr}: ${url}, ${relative}`);
+                a.setAttribute('data-link-relative', relative);
             }
         });
     });
+}
+
+function updateUrls(doc) {
+    ['href', 'src'].forEach(attr => {
+        doc.querySelectorAll(`[${attr}][data-link-relative]`).forEach(a => {
+            const url = a.getAttribute(attr);
+            const relative = a.getAttribute('data-link-relative');
+            const newUrl = mapUrl(url, relative);
+            console.log(`updating url for ${attr}: ${url}, ${newUrl}`);
+            a.setAttribute(attr, newUrl);
+            a.removeAttribute('data-link-relative');
+        })
+    })
 }
 
 function isRelativeUrl(url) {
