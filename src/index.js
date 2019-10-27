@@ -5,75 +5,90 @@ const glob = require('glob');
 const rimraf = require('rimraf');
 const JSDOM = require('jsdom').JSDOM;
 
-const defaultOptions = {
-    base: './',
-    include: '**/*',
-    templateName: '_template.html',
-    output: './dist',
-    clean: true,
-    fileEncoding: 'utf8',
-};
-
-module.exports = async function build(options = {}) {
-    options = {
-        ...defaultOptions,
-        ...options
+function getDefaultOptions() {
+    return {
+        input: './src',
+        output: './dist',
+        include: ['**/*'],
+        exclude: [],
+        templateName: '_template.html',
+        isPartial(file) {
+            return path.extname(file) == '.html';
+        },
+        clean: true,
+        fileEncoding: 'utf8'
     };
+}
 
-    options = {
-        ...options,
-        include: path.join(options.base, options.include),
-        output: path.join(options.base, options.output),
-    };
+module.exports = async function build(configure) {
+    const options = getDefaultOptions();
+    if(typeof configure == 'function') {
+        configure(options);
+    }
 
     if(options.clean) {
         await deleteFiles(options.output);
     }
 
-    let files = await getFiles(options.include);
+    let files = [];
+    for(let include of options.include) {
+        let temp = await getFiles(include, options.exclude, options.input);
+        files = files.concat(temp);
+    }
 
     await Promise.all(files.map(async file => {
-        const output = path.join(options.output, path.relative(options.base, file));
-        await fs.promises.mkdir(path.dirname(output), { recursive: true });
-
-        if(path.extname(file) == '.html') {
-            if(path.basename(file) != options.templateName) {
-                let html = await fs.promises.readFile(file, options.fileEncoding);
-
-                const templates = await findTemplates(path.dirname(file), options.base, options.templateName, options.fileEncoding);
-
-                // include the current html in each template in turn
-                if(templates.length > 0) {
-                    templates.push({
-                        relative: '',
-                        html
-                    });
-                    const base = templates.shift();
-                    const dom = new JSDOM(base.html);
-                    tagUrls(dom.window.document, base.relative);
-
-                    templates.forEach(template => {
-                        const fragment = JSDOM.fragment(template.html);
-                        tagUrls(fragment, template.relative);
-                        include(dom.window.document, fragment);
-                    });
-
-                    updateUrls(dom.window.document);
-
-                    html = dom.serialize();
-                }
-
-                await fs.promises.writeFile(output, html);
-                console.log(`Written file ${ output }`);
-            } else {
-                console.log(`Skipping template ${ file }`);
-            }
+        if(options.templateName == path.basename(file)) {
+            console.log(`Ignoring template ${ file }`);
+        } else if(options.isPartial(file)) {
+            await processPartial(file, options);
         } else {
-            await fs.promises.copyFile(file, output);
-            console.log(`Copied file ${ output }`);
+            await copyFile(file, options);
         }
     }));
 };
+
+async function copyFile(file, options) {
+    file = path.join(options.input, file);
+    const output = path.join(options.output, path.relative(options.input, file));
+    
+    await fs.promises.mkdir(path.dirname(output), { recursive: true });
+    await fs.promises.copyFile(file, output);
+
+    console.log(`Copied file ${ output }`);
+}
+
+async function processPartial(file, options) {
+    file = path.join(options.input, file);
+    let html = await fs.promises.readFile(file, options.fileEncoding);
+
+    const templates = await findTemplates(path.dirname(file), options.input, options.templateName, options.fileEncoding);
+
+    // include the current html in each template in turn
+    if(templates.length > 0) {
+        templates.push({
+            relative: '',
+            html
+        });
+        const base = templates.shift();
+        const dom = new JSDOM(base.html);
+        tagUrls(dom.window.document, base.relative);
+
+        templates.forEach(template => {
+            const fragment = JSDOM.fragment(template.html);
+            tagUrls(fragment, template.relative);
+            include(dom.window.document, fragment);
+        });
+
+        updateUrls(dom.window.document);
+
+        html = dom.serialize();
+    }
+
+    const output = path.join(options.output, path.relative(options.input, file));
+    await fs.promises.mkdir(path.dirname(output), { recursive: true });
+    await fs.promises.writeFile(output, html);
+    console.log(`Written file ${ output }`);
+}
 
 function tagUrls(doc, relative) {
     relative = relative.replace('\\', '/');
@@ -106,6 +121,7 @@ function updateUrls(doc) {
 }
 
 function isRelativeUrl(url) {
+    // TODO - handle #fragment urls
     return (url.indexOf('http:') != 0) &&
            (url.indexOf('https:') != 0) &&
            (url.indexOf('/') != 0);
@@ -193,9 +209,13 @@ async function findTemplates(dir, base, templateName, encoding) {
     return templates;
 }
 
-async function getFiles(include) {
+async function getFiles(include, exclude, base) {
     return await new Promise((resolve, reject) => {
-        glob(include, { nodir: true }, (err, files) => {
+        glob(include, { 
+            nodir: true,
+            cwd: base,
+            ignore: exclude 
+        }, (err, files) => {
             if(err) {
                 reject(err);
             } else {

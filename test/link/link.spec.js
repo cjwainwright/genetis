@@ -8,7 +8,10 @@ describe('slot', () => {
     const outputDir = './test/link/dist/';
 
     beforeAll(async () => {
-        await build({ base: './test/link/src', output: '../dist'});
+        await build(config => { 
+            config.input = './test/link/src'
+            config.output = './test/link/dist'
+        });
     });
 
     it('creates an html file for each page', async () => {

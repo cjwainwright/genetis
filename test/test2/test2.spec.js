@@ -8,7 +8,10 @@ describe('test2', () => {
     const outputDir = './test/test2/dist/';
 
     beforeAll(async () => {
-        await build({ base: './test/test2/src', output: '../dist'});
+        await build(config => { 
+            config.input = './test/test2/src'
+            config.output = './test/test2/dist'
+        });
     });
 
     it('has an index.html', async () => {

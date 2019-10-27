@@ -7,7 +7,10 @@ describe('test1', () => {
     const outputFile = './test/test1/dist/index.html';
 
     beforeAll(async () => {
-        await build({ base: './test/test1/src', output: '../dist'});
+        await build(config => { 
+            config.input = './test/test1/src'
+            config.output = './test/test1/dist'
+        });
     });
 
     it('creates a single index.html', async () => {
