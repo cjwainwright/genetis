@@ -169,10 +169,13 @@ function include(doc, fragment) {
     const namedSlots = doc.querySelectorAll('slot[name]');
     namedSlots.forEach(namedSlot => {
         const name = namedSlot.getAttribute('name');
-        const content = fragment.querySelector(`[slot=${name}]`);
-        content.removeAttribute('slot');
-        
-        namedSlot.parentNode.replaceChild(content, namedSlot);
+        const content = fragment.querySelector(`[slot='${name}']`);
+        if(content == null) {
+            namedSlot.parentNode.removeChild(namedSlot);
+        } else {
+            content.removeAttribute('slot');
+            namedSlot.parentNode.replaceChild(content, namedSlot);
+        }
     });
 
     const defaultSlot = doc.querySelector('slot');
