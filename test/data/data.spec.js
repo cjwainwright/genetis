@@ -4,7 +4,7 @@ const path = require('path');
 const JSDOM = require('jsdom').JSDOM;
 const encoding = 'utf8';
 
-describe('slot', () => {
+describe('data', () => {
     const outputDir = './test/data/dist/';
 
     beforeAll(async () => {

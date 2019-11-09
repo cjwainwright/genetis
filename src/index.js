@@ -134,18 +134,43 @@ function mapUrl(value, relative) {
 function updateContent(element, value) {
     if(element.hasAttribute('content')) {
         element.setAttribute('content', value);
-    } else if(element.hasAttribute('src')) {
-        element.setAttribute('src', value);
-    } else if(element.hasAttribute('href')) {
-        element.setAttribute('href', value);
-    } else if(element.nodeName == 'TIME') {
-        element.setAttribute('datetime', value);
-        element.textContent = value; // TODO - format for display
-    } else if((element.nodeName == 'METER') || (element.nodeName == 'DATA')) {
-        element.setAttribute('value', value);
-        element.textContent = value; // TODO - format for display
     } else {
-        element.textContent = value;
+        switch(element.nodeName) {
+            case 'AUDIO':
+            case 'EMBED':
+            case 'IFRAME':
+            case 'IMG':
+            case 'SOURCE':
+            case 'TRACK':
+            case 'VIDEO':
+                element.setAttribute('src', value);
+                break;
+
+            case 'A':
+            case 'AREA':
+            case 'LINK':
+                element.setAttribute('href', value);
+                break;
+
+            case 'OBJECT':
+                element.setAttribute('data', value);
+                break;
+                                    
+            case 'TIME':
+                element.setAttribute('datetime', value);
+                element.textContent = value; // TODO - format for display
+                break;
+                
+            case 'METER':
+            case 'DATA':
+                element.setAttribute('value', value);
+                element.textContent = value; // TODO - format for display
+                break;
+                
+            default:
+                element.textContent = value;
+                break;
+        }
     }
 }
 
