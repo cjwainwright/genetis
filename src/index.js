@@ -59,6 +59,8 @@ async function copyFile(file, options) {
 
 async function processPartial(file, options) {
     file = path.join(options.input, file);
+
+    console.log(`Processing partial file ${file}`);
     let html = await fs.promises.readFile(file, options.fileEncoding);
 
     const templates = await findTemplates(path.dirname(file), options.input, options.templateName, options.fileEncoding);
@@ -90,17 +92,32 @@ async function processPartial(file, options) {
     console.log(`Written file ${ output }`);
 }
 
+var elementLinkAttributes = {
+    'AUDIO': 'src',
+    'EMBED': 'src',
+    'IFRAME': 'src',
+    'IMG': 'src',
+    'SCRIPT': 'src',
+    'SOURCE': 'src',
+    'TRACK': 'src',
+    'VIDEO': 'src',
+    'A': 'href',
+    'AREA': 'href',
+    'LINK': 'href'
+}
+
 function tagUrls(doc, relative) {
     relative = relative.replace('\\', '/');
     if(relative.indexOf('..') >= 0) {
         relative += '/';
     }
 
-    ['href', 'src'].forEach(attr => {
-        doc.querySelectorAll(`[${attr}]`).forEach(a => {
+    Object.keys(elementLinkAttributes).forEach(element => {
+        var attr = elementLinkAttributes[element];
+        doc.querySelectorAll(element).forEach(a => {
             const url = a.getAttribute(attr);
-            if(!a.hasAttribute('data-link-relative') && isRelativeUrl(url)) {
-                console.log(`tagging url as relative for ${attr}: ${url}, ${relative}`);
+            if(!a.hasAttribute('data-link-relative') && (url == null || isRelativeUrl(url))) {
+                console.log(`tagging url as relative for ${element}[${attr}]: ${url}, ${relative}`);
                 a.setAttribute('data-link-relative', relative);
             }
         });
@@ -108,16 +125,19 @@ function tagUrls(doc, relative) {
 }
 
 function updateUrls(doc) {
-    ['href', 'src'].forEach(attr => {
-        doc.querySelectorAll(`[${attr}][data-link-relative]`).forEach(a => {
+    Object.keys(elementLinkAttributes).forEach(element => {
+        var attr = elementLinkAttributes[element];
+        doc.querySelectorAll(`${element}[data-link-relative]`).forEach(a => {
             const url = a.getAttribute(attr);
             const relative = a.getAttribute('data-link-relative');
-            const newUrl = mapUrl(url, relative);
-            console.log(`updating url for ${attr}: ${url}, ${newUrl}`);
-            a.setAttribute(attr, newUrl);
+            if(url != null && relative != null) {
+                const newUrl = mapUrl(url, relative);
+                console.log(`updating url for ${element}[${attr}]: ${url}, ${newUrl}`);
+                a.setAttribute(attr, newUrl);
+            }
             a.removeAttribute('data-link-relative');
         })
-    })
+    });
 }
 
 function isRelativeUrl(url) {
@@ -140,6 +160,7 @@ function updateContent(element, value) {
             case 'EMBED':
             case 'IFRAME':
             case 'IMG':
+            case 'SCRIPT':
             case 'SOURCE':
             case 'TRACK':
             case 'VIDEO':
@@ -218,7 +239,8 @@ async function findTemplates(dir, base, templateName, encoding) {
         const template = path.join(currentDir, templateName);
         try {
              const html = await fs.promises.readFile(template, encoding);
-             const relative = path.relative(dir, currentDir)
+             console.log(`Found template ${template}`);
+             const relative = path.relative(dir, currentDir);
              templates.unshift({
                  relative,
                  html

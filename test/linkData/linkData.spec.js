@@ -27,12 +27,74 @@ describe('link data', () => {
             doc = new JSDOM(html).window.document;
         });
 
-        it('has correct link when no current href', () => {
-            expect(doc.getElementById('no-href').href).toEqual('/var');
+        describe('anchor tag', () => {
+            it('has correct link when no current href', () => {
+                expect(doc.getElementById('no-href').href).toEqual('/var');
+            });
+    
+            it('has correct link when existing href', () => {
+                expect(doc.getElementById('existing-href').href).toEqual('/var');
+            });
         });
 
-        it('has correct link when existing href', () => {
-            expect(doc.getElementById('existing-href').href).toEqual('/var');
+        describe('audio tag', () => {
+            it('has correct link', () => {
+                expect(doc.querySelector('audio').src).toEqual('/var');
+            });
+        });
+        
+        describe('embed tag', () => {
+            it('has correct link', () => {
+                expect(doc.querySelector('embed').src).toEqual('/var');
+            });
+        });
+
+        describe('iframe tag', () => {
+            it('has correct link', () => {
+                expect(doc.querySelector('iframe').src).toEqual('/var');
+            });
+        });        
+        
+        describe('img tag', () => {
+            it('has correct link', () => {
+                expect(doc.querySelector('img').src).toEqual('/var');
+            });
+        });
+        
+        describe('script tag', () => {
+            it('has correct link', () => {
+                expect(doc.querySelector('script').src).toEqual('/var');
+            });
+        });
+        
+        describe('source tag', () => {
+            it('has correct link', () => {
+                expect(doc.querySelector('source').src).toEqual('/var');
+            });
+        });
+        
+        describe('track tag', () => {
+            it('has correct link', () => {
+                expect(doc.querySelector('track').src).toEqual('/var');
+            });
+        });
+        
+        describe('video tag', () => {
+            it('has correct link', () => {
+                expect(doc.querySelector('video').src).toEqual('/var');
+            });
+        });
+        
+        describe('area tag', () => {
+            it('has correct link', () => {
+                expect(doc.querySelector('area').href).toEqual('/var');
+            });
+        });
+        
+        describe('link tag', () => {
+            it('has correct link', () => {
+                expect(doc.querySelector('link').href).toEqual('/var');
+            });
         });
     });
 });
