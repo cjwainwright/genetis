@@ -32,45 +32,53 @@ describe('slot', () => {
 
         describe('template link', () => {
             it('has correct absolute link', () => {
-                expect(doc.getElementById('template-absolute').href).toEqual('http://example.com/'); // note: href adds trailing /
+                expect(doc.getElementById('template-absolute').getAttribute('href')).toEqual('http://example.com');
             });
     
             it('has correct root link', () => {
-                expect(doc.getElementById('template-root').href).toEqual('/a');
+                expect(doc.getElementById('template-root').getAttribute('href')).toEqual('/a');
             });
             
             it('has correct relative link', () => {
-                expect(doc.getElementById('template-relative').href).toEqual('a');
+                expect(doc.getElementById('template-relative').getAttribute('href')).toEqual('a');
             });   
     
             it('has correct relative dot link', () => {
-                expect(doc.getElementById('template-relative-dot').href).toEqual('a'); // note: removes ./
+                expect(doc.getElementById('template-relative-dot').getAttribute('href')).toEqual('a'); // note: removes ./
             });  
             
             it('has correct relative dot dot link', () => {
-                expect(doc.getElementById('template-relative-dot-dot').href).toEqual('../a');
+                expect(doc.getElementById('template-relative-dot-dot').getAttribute('href')).toEqual('../a');
+            });   
+
+            it('has correct relative hash link', () => {
+                expect(doc.getElementById('template-relative-hash').getAttribute('href')).toEqual('#a');
             });   
         });
         
         describe('page link', () => {
             it('has correct absolute link', () => {
-                expect(doc.getElementById('page-absolute').href).toEqual('http://example.com/'); // note: adds trailing /
+                expect(doc.getElementById('page-absolute').getAttribute('href')).toEqual('http://example.com');
             });
     
             it('has correct root link', () => {
-                expect(doc.getElementById('page-root').href).toEqual('/a');
+                expect(doc.getElementById('page-root').getAttribute('href')).toEqual('/a');
             });
             
             it('has correct relative link', () => {
-                expect(doc.getElementById('page-relative').href).toEqual('a');
+                expect(doc.getElementById('page-relative').getAttribute('href')).toEqual('a');
             });   
     
             it('has correct relative dot link', () => {
-                expect(doc.getElementById('page-relative-dot').href).toEqual('a'); // note: removes ./
+                expect(doc.getElementById('page-relative-dot').getAttribute('href')).toEqual('a'); // note: removes ./
             });  
             
             it('has correct relative dot dot link', () => {
-                expect(doc.getElementById('page-relative-dot-dot').href).toEqual('../a');
+                expect(doc.getElementById('page-relative-dot-dot').getAttribute('href')).toEqual('../a');
+            });
+
+            it('has correct relative hash link', () => {
+                expect(doc.getElementById('page-relative-hash').getAttribute('href')).toEqual('#a');
             });
         });
     });
@@ -85,45 +93,53 @@ describe('slot', () => {
 
         describe('template link', () => {
             it('has correct absolute link', () => {
-                expect(doc.getElementById('template-absolute').href).toEqual('http://example.com/'); // note: adds trailing /
+                expect(doc.getElementById('template-absolute').getAttribute('href')).toEqual('http://example.com');
             });
     
             it('has correct root link', () => {
-                expect(doc.getElementById('template-root').href).toEqual('/a');
+                expect(doc.getElementById('template-root').getAttribute('href')).toEqual('/a');
             });
             
             it('has correct relative link', () => {
-                expect(doc.getElementById('template-relative').href).toEqual('../a');
+                expect(doc.getElementById('template-relative').getAttribute('href')).toEqual('../a');
             });   
     
             it('has correct relative dot link', () => {
-                expect(doc.getElementById('template-relative-dot').href).toEqual('../a');
+                expect(doc.getElementById('template-relative-dot').getAttribute('href')).toEqual('../a');
             });  
             
             it('has correct relative dot dot link', () => {
-                expect(doc.getElementById('template-relative-dot-dot').href).toEqual('../../a');
+                expect(doc.getElementById('template-relative-dot-dot').getAttribute('href')).toEqual('../../a');
+            });   
+            
+            it('has correct relative hash link', () => {
+                expect(doc.getElementById('template-relative-hash').getAttribute('href')).toEqual('../#a');
             });   
         });
         
         describe('page link', () => {
             it('has correct absolute link', () => {
-                expect(doc.getElementById('page-absolute').href).toEqual('http://example.com/'); // note: adds trailing /
+                expect(doc.getElementById('page-absolute').getAttribute('href')).toEqual('http://example.com');
             });
     
             it('has correct root link', () => {
-                expect(doc.getElementById('page-root').href).toEqual('/a');
+                expect(doc.getElementById('page-root').getAttribute('href')).toEqual('/a');
             });
             
             it('has correct relative link', () => {
-                expect(doc.getElementById('page-relative').href).toEqual('a');
+                expect(doc.getElementById('page-relative').getAttribute('href')).toEqual('a');
             });   
     
             it('has correct relative dot link', () => {
-                expect(doc.getElementById('page-relative-dot').href).toEqual('a'); // note: removes ./
+                expect(doc.getElementById('page-relative-dot').getAttribute('href')).toEqual('a'); // note: removes ./
             });  
             
             it('has correct relative dot dot link', () => {
-                expect(doc.getElementById('page-relative-dot-dot').href).toEqual('../a');
+                expect(doc.getElementById('page-relative-dot-dot').getAttribute('href')).toEqual('../a');
+            });
+            
+            it('has correct relative hash link', () => {
+                expect(doc.getElementById('page-relative-hash').getAttribute('href')).toEqual('#a');
             });
         });
     });

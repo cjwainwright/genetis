@@ -141,7 +141,6 @@ function updateUrls(doc) {
 }
 
 function isRelativeUrl(url) {
-    // TODO - handle #fragment urls
     return (url.indexOf('http:') != 0) &&
            (url.indexOf('https:') != 0) &&
            (url.indexOf('/') != 0);
