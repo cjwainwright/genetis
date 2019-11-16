@@ -40,7 +40,7 @@ describe('data', () => {
                 expect(doc.querySelector(`[itemprop='var2']`).textContent).toEqual(`page${n}-var2`);
             });            
 
-            it('ignores non-empty data for var3', () => {
+            it('ignores normal meta data for var3', () => {
                 expect(doc.querySelector(`[itemprop='var3']`).textContent).toEqual(``);
             });            
         });
