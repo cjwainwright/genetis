@@ -196,18 +196,14 @@ function updateContent(element, value) {
 
 function include(doc, fragment) {
     //process variables
-    fragment.querySelectorAll('data[itemprop]').forEach(data => {
+    fragment.querySelectorAll('data[itemprop]:empty').forEach(data => {
         const property = data.getAttribute('itemprop');
-        if(data.children.length == 0) {
-            const value = data.getAttribute('value');
-            data.parentNode.removeChild(data);
+        const value = data.getAttribute('value');
+        data.parentNode.removeChild(data);
 
-            doc.querySelectorAll(`[itemprop='${property}']`).forEach(item => {
-                updateContent(item, value);
-            });
-        } else {
-            console.log(`skipping data node ${property} as contains content`)
-        }
+        doc.querySelectorAll(`[itemprop='${property}']`).forEach(item => {
+            updateContent(item, value);
+        });
     });
 
     //include content
