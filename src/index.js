@@ -206,6 +206,23 @@ function include(doc, fragment) {
         });
     });
 
+    //special slots
+    const specialSlots = {
+        'head': 'head'
+    };
+
+    Object.keys(specialSlots).forEach(name => {
+        fragment.querySelectorAll(`[slot='${name}']`).forEach(content => {
+            content.removeAttribute('slot');
+            const element = doc.querySelector(specialSlots[name]);
+            if(element == null) {
+                console.log(`special slot ${name} not found`);
+            } else {
+                element.appendChild(content);
+            }
+        });
+    });
+
     //include content
     const namedSlots = doc.querySelectorAll('slot[name]');
     namedSlots.forEach(namedSlot => {
