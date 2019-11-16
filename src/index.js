@@ -196,9 +196,9 @@ function updateContent(element, value) {
 
 function include(doc, fragment) {
     //process variables
-    fragment.querySelectorAll('data[itemprop]:empty').forEach(data => {
+    fragment.querySelectorAll('meta[itemprop]').forEach(data => {
         const property = data.getAttribute('itemprop');
-        const value = data.getAttribute('value');
+        const value = data.getAttribute('content');
         data.parentNode.removeChild(data);
 
         doc.querySelectorAll(`[itemprop='${property}']`).forEach(item => {
