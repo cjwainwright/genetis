@@ -20,6 +20,9 @@ describe('data', () => {
 
         stats = await fs.promises.stat(path.join(outputDir, 'page2.html'));
         expect(stats.isFile()).toBe(true);
+
+        stats = await fs.promises.stat(path.join(outputDir, 'nested/nested/nested.html'));
+        expect(stats.isFile()).toBe(true);
     });
 
     [1, 2].forEach((n) => {
@@ -44,5 +47,26 @@ describe('data', () => {
                 expect(doc.querySelector(`[itemprop='var3']`).textContent).toEqual(``);
             });            
         });
+    });
+
+    describe(`nested.html`, () => {
+        let doc;
+
+        beforeAll(async () => {
+            const html = await fs.promises.readFile(path.join(outputDir, `nested/nested/nested.html`), encoding);
+            doc = new JSDOM(html).window.document;
+        });
+
+        it('has correct var1 (from template)', () => {
+            expect(doc.querySelector(`[itemprop='var1']`).textContent).toEqual(`nested-template-var1`);
+        });
+
+        it('has correct var2 (page overriding template)', () => {
+            expect(doc.querySelector(`[itemprop='var2']`).textContent).toEqual(`nested-page-var2`);
+        });            
+
+        it('has correct var3 (page only)', () => {
+            expect(doc.querySelector(`[itemprop='var3']`).textContent).toEqual(`nested-page-var3`);
+        });            
     });
 });
