@@ -62,15 +62,20 @@ async function processPartial(file, options) {
 
     console.log(`Processing partial file ${file}`);
     let html = await fs.promises.readFile(file, options.fileEncoding);
+    let templates;
+    if(isRootHtml(html)) {
+        templates = [];
+    } else {
+        templates = await findTemplates(path.dirname(file), options.input, options.templateName, options.fileEncoding);
+    }
 
-    const templates = await findTemplates(path.dirname(file), options.input, options.templateName, options.fileEncoding);
+    templates.push({
+        relative: '',
+        html
+    });
 
     // include the current html in each template in turn
     if(templates.length > 0) {
-        templates.push({
-            relative: '',
-            html
-        });
         const base = templates.shift();
         const dom = new JSDOM(base.html);
         tagUrls(dom.window.document, base.relative);
@@ -247,16 +252,23 @@ async function findTemplates(dir, base, templateName, encoding) {
     let currentDir = dir;
     
     let hasRemaining = false;
+    let isRoot = false;
     do {
         const template = path.join(currentDir, templateName);
         try {
-             const html = await fs.promises.readFile(template, encoding);
-             console.log(`Found template ${template}`);
-             const relative = path.relative(dir, currentDir);
-             templates.unshift({
-                 relative,
-                 html
-             });
+            const html = await fs.promises.readFile(template, encoding);
+            console.log(`Found template ${template}`);
+
+            if(isRootHtml(html)) {
+                isRoot = true;
+                console.log('Template is root html, terminating search');
+            }
+
+            const relative = path.relative(dir, currentDir);
+            templates.unshift({
+                relative,
+                html
+            });
         } catch(err) {
             if (err.code != 'ENOENT') {
                 throw err;
@@ -266,9 +278,14 @@ async function findTemplates(dir, base, templateName, encoding) {
         const remaining = path.relative(base, currentDir);
         hasRemaining = remaining != '' && remaining.indexOf('..') < 0;
         currentDir = path.join(currentDir, '../');
-    } while (hasRemaining)
+        
+    } while (hasRemaining && !isRoot)
 
     return templates;
+}
+
+function isRootHtml(html) {
+    return html.indexOf('<html>') >= 0 || html.indexOf('<html ') >= 0;
 }
 
 async function getFiles(include, exclude, base) {
