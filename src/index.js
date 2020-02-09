@@ -5,6 +5,7 @@ const glob = require('glob');
 const rimraf = require('rimraf');
 const JSDOM = require('jsdom').JSDOM;
 const defaultOptions = require('./defaultOptions.json');
+const log = require('./log');
 
 module.exports = async function build(userOptions) {
     const options = { ...defaultOptions, ...userOptions };
@@ -21,7 +22,7 @@ module.exports = async function build(userOptions) {
 
     await Promise.all(files.map(async file => {
         if(isTemplate(file, options)) {
-            console.log(`Ignoring template ${ file }`);
+            log(`Ignoring template ${ file }`);
         } else if(isPartial(file, options)) {
             await processPartial(file, options);
         } else {
@@ -37,7 +38,7 @@ async function copyFile(file, options) {
     await fs.promises.mkdir(path.dirname(output), { recursive: true });
     await fs.promises.copyFile(file, output);
 
-    console.log(`Copied file ${ output }`);
+    log(`Copied file ${ output }`);
 }
 
 function isTemplate(file, options) {
@@ -52,7 +53,7 @@ function isPartial(file, options) {
 async function processPartial(file, options) {
     file = path.join(options.input, file);
 
-    console.log(`Processing partial file ${file}`);
+    log(`Processing partial file ${file}`);
     let html = await fs.promises.readFile(file, options.fileEncoding);
     let templates;
     if(isRootHtml(html)) {
@@ -86,7 +87,7 @@ async function processPartial(file, options) {
     const output = path.join(options.output, path.relative(options.input, file));
     await fs.promises.mkdir(path.dirname(output), { recursive: true });
     await fs.promises.writeFile(output, html);
-    console.log(`Written file ${ output }`);
+    log(`Written file ${ output }`);
 }
 
 var elementLinkAttributes = {
@@ -114,7 +115,7 @@ function tagUrls(doc, relative) {
         doc.querySelectorAll(element).forEach(a => {
             const url = a.getAttribute(attr);
             if(!a.hasAttribute('data-link-relative') && (url == null || isRelativeUrl(url))) {
-                console.log(`tagging url as relative for ${element}[${attr}]: ${url}, ${relative}`);
+                log(`tagging url as relative for ${element}[${attr}]: ${url}, ${relative}`);
                 a.setAttribute('data-link-relative', relative);
             }
         });
@@ -129,7 +130,7 @@ function updateUrls(doc) {
             const relative = a.getAttribute('data-link-relative');
             if(url != null && relative != null) {
                 const newUrl = mapUrl(url, relative);
-                console.log(`updating url for ${element}[${attr}]: ${url}, ${newUrl}`);
+                log(`updating url for ${element}[${attr}]: ${url}, ${newUrl}`);
                 a.setAttribute(attr, newUrl);
             }
             a.removeAttribute('data-link-relative');
@@ -213,7 +214,7 @@ function include(doc, fragment) {
             content.removeAttribute('slot');
             const element = doc.querySelector(specialSlots[name]);
             if(element == null) {
-                console.log(`special slot ${name} not found`);
+                log(`special slot ${name} not found`);
             } else {
                 element.appendChild(content);
             }
@@ -249,11 +250,11 @@ async function findTemplates(dir, base, templateName, encoding) {
         const template = path.join(currentDir, templateName);
         try {
             const html = await fs.promises.readFile(template, encoding);
-            console.log(`Found template ${template}`);
+            log(`Found template ${template}`);
 
             if(isRootHtml(html)) {
                 isRoot = true;
-                console.log('Template is root html, terminating search');
+                log('Template is root html, terminating search');
             }
 
             const relative = path.relative(dir, currentDir);
