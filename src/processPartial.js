@@ -6,40 +6,28 @@ const log = require('./log');
 const elementLinkAttributes = require('./elementLinkAttributes');
 const isRelativeUrl = require('./isRelativeUrl');
 const updateContent = require('./updateContent');
+const getTemplates = require('./getTemplates');
 
 module.exports = async function processPartial(file, options) {
     file = path.join(options.input, file);
 
     log(`Processing partial file ${file}`);
-    let html = await fs.promises.readFile(file, options.fileEncoding);
-    let templates;
-    if(isRootHtml(html)) {
-        templates = [];
-    } else {
-        templates = await findTemplates(path.dirname(file), options.input, options.templateName, options.fileEncoding);
-    }
-
-    templates.push({
-        relative: '',
-        html
-    });
+    const templates = await getTemplates(file, options);
 
     // include the current html in each template in turn
-    if(templates.length > 0) {
-        const base = templates.shift();
-        const dom = new JSDOM(base.html);
-        tagUrls(dom.window.document, base.relative);
+    const base = templates.shift();
+    const dom = new JSDOM(base.html);
+    tagUrls(dom.window.document, base.relative);
 
-        templates.forEach(template => {
-            const fragment = JSDOM.fragment(template.html);
-            tagUrls(fragment, template.relative);
-            include(dom.window.document, fragment);
-        });
+    templates.forEach(template => {
+        const fragment = JSDOM.fragment(template.html);
+        tagUrls(fragment, template.relative);
+        include(dom.window.document, fragment);
+    });
 
-        updateUrls(dom.window.document);
+    updateUrls(dom.window.document);
 
-        html = dom.serialize();
-    }
+    const html = dom.serialize();
 
     const output = path.join(options.output, path.relative(options.input, file));
     await fs.promises.mkdir(path.dirname(output), { recursive: true });
@@ -127,45 +115,4 @@ function include(doc, fragment) {
     if(defaultSlot) {
         defaultSlot.parentNode.replaceChild(fragment, defaultSlot);
     }
-}
-
-async function findTemplates(dir, base, templateName, encoding) {
-    const templates = [];
-    let currentDir = dir;
-    
-    let hasRemaining = false;
-    let isRoot = false;
-    do {
-        const template = path.join(currentDir, templateName);
-        try {
-            const html = await fs.promises.readFile(template, encoding);
-            log(`Found template ${template}`);
-
-            if(isRootHtml(html)) {
-                isRoot = true;
-                log('Template is root html, terminating search');
-            }
-
-            const relative = path.relative(dir, currentDir);
-            templates.unshift({
-                relative,
-                html
-            });
-        } catch(err) {
-            if (err.code != 'ENOENT') {
-                throw err;
-            }
-        }
-
-        const remaining = path.relative(base, currentDir);
-        hasRemaining = remaining != '' && remaining.indexOf('..') < 0;
-        currentDir = path.join(currentDir, '../');
-        
-    } while (hasRemaining && !isRoot)
-
-    return templates;
-}
-
-function isRootHtml(html) {
-    return html.indexOf('<html>') >= 0 || html.indexOf('<html ') >= 0;
 }
