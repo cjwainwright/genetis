@@ -1,10 +1,10 @@
 const path = require('path');
-const glob = require('glob');
-const rimraf = require('rimraf');
 const defaultOptions = require('./defaultOptions.json');
 const log = require('./log');
 const copyFile = require('./copyFile');
 const processPartial = require('./processPartial');
+const deleteFiles = require('./deleteFiles');
+const getFiles = require('./getFiles');
 
 module.exports = async function build(userOptions) {
     const options = { ...defaultOptions, ...userOptions };
@@ -39,30 +39,4 @@ function isPartial(file, options) {
     return options.partialExtensions.includes(ext);
 }
 
-async function getFiles(include, exclude, base) {
-    return await new Promise((resolve, reject) => {
-        glob(include, { 
-            nodir: true,
-            cwd: base,
-            ignore: exclude 
-        }, (err, files) => {
-            if(err) {
-                reject(err);
-            } else {
-                resolve(files);
-            }
-        });
-    });
-}
 
-async function deleteFiles(pattern) {
-    return await new Promise((resolve, reject) => {
-        rimraf(pattern, (err) => {
-            if(err) {
-                reject(err);
-            } else {
-                resolve();
-            }
-        })
-    })
-}

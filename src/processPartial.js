@@ -3,6 +3,9 @@ const path = require('path');
 const url = require('url');
 const JSDOM = require('jsdom').JSDOM;
 const log = require('./log');
+const elementLinkAttributes = require('./elementLinkAttributes');
+const isRelativeUrl = require('./isRelativeUrl');
+const updateContent = require('./updateContent');
 
 module.exports = async function processPartial(file, options) {
     file = path.join(options.input, file);
@@ -44,20 +47,6 @@ module.exports = async function processPartial(file, options) {
     log(`Written file ${ output }`);
 };
 
-var elementLinkAttributes = {
-    'AUDIO': 'src',
-    'EMBED': 'src',
-    'IFRAME': 'src',
-    'IMG': 'src',
-    'SCRIPT': 'src',
-    'SOURCE': 'src',
-    'TRACK': 'src',
-    'VIDEO': 'src',
-    'A': 'href',
-    'AREA': 'href',
-    'LINK': 'href'
-}
-
 function tagUrls(doc, relative) {
     relative = relative.replace('\\', '/');
     if(relative.indexOf('..') >= 0) {
@@ -80,70 +69,16 @@ function updateUrls(doc) {
     Object.keys(elementLinkAttributes).forEach(element => {
         var attr = elementLinkAttributes[element];
         doc.querySelectorAll(`${element}[data-link-relative]`).forEach(a => {
-            const url = a.getAttribute(attr);
+            const uri = a.getAttribute(attr);
             const relative = a.getAttribute('data-link-relative');
-            if(url != null && relative != null) {
-                const newUrl = mapUrl(url, relative);
-                log(`updating url for ${element}[${attr}]: ${url}, ${newUrl}`);
+            if(uri != null && relative != null) {
+                const newUrl = url.resolve(relative, uri);
+                log(`updating url for ${element}[${attr}]: ${uri}, ${newUrl}`);
                 a.setAttribute(attr, newUrl);
             }
             a.removeAttribute('data-link-relative');
         })
     });
-}
-
-function isRelativeUrl(url) {
-    return (url.indexOf('http:') != 0) &&
-           (url.indexOf('https:') != 0) &&
-           (url.indexOf('/') != 0);
-}
-
-function mapUrl(value, relative) {
-    return url.resolve(relative, value);
-}
-
-function updateContent(element, value) {
-    if(element.hasAttribute('content')) {
-        element.setAttribute('content', value);
-    } else {
-        switch(element.nodeName) {
-            case 'AUDIO':
-            case 'EMBED':
-            case 'IFRAME':
-            case 'IMG':
-            case 'SCRIPT':
-            case 'SOURCE':
-            case 'TRACK':
-            case 'VIDEO':
-                element.setAttribute('src', value);
-                break;
-
-            case 'A':
-            case 'AREA':
-            case 'LINK':
-                element.setAttribute('href', value);
-                break;
-
-            case 'OBJECT':
-                element.setAttribute('data', value);
-                break;
-                                    
-            case 'TIME':
-                element.setAttribute('datetime', value);
-                element.textContent = value; // TODO - format for display
-                break;
-                
-            case 'METER':
-            case 'DATA':
-                element.setAttribute('value', value);
-                element.textContent = value; // TODO - format for display
-                break;
-                
-            default:
-                element.textContent = value;
-                break;
-        }
-    }
 }
 
 function include(doc, fragment) {
