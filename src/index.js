@@ -4,22 +4,9 @@ const url = require('url');
 const glob = require('glob');
 const rimraf = require('rimraf');
 const JSDOM = require('jsdom').JSDOM;
-
-function getDefaultOptions() {
-    return {
-        input: './src',
-        output: './dist',
-        include: ['**/*'],
-        exclude: [],
-        templateName: '_template.html',
-        partialExtensions: ['.html', '.htm'],
-        clean: true,
-        fileEncoding: 'utf8'
-    };
-}
+const defaultOptions = require('./defaultOptions.json');
 
 module.exports = async function build(userOptions) {
-    const defaultOptions = getDefaultOptions();
     const options = { ...defaultOptions, ...userOptions };
 
     if(options.clean) {

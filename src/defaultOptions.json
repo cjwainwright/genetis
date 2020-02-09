@@ -1,0 +1,10 @@
+{
+    "input": "./src",
+    "output": "./dist",
+    "include": ["**/*"],
+    "exclude": [],
+    "templateName": "_template.html",
+    "partialExtensions": [".html", ".htm"],
+    "clean": true,
+    "fileEncoding": "utf8"
+}
