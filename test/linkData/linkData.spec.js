@@ -8,9 +8,9 @@ describe('link data', () => {
     const outputFile = './test/linkData/dist/page.html';
 
     beforeAll(async () => {
-        await build(config => { 
-            config.input = './test/linkData/src'
-            config.output = './test/linkData/dist'
+        await build({ 
+            input: './test/linkData/src',
+            output: './test/linkData/dist'
         });
     });
 

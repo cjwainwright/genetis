@@ -8,9 +8,9 @@ describe('root', () => {
     const outputDir = './test/root/dist/';
 
     beforeAll(async () => {
-        await build(config => { 
-            config.input = './test/root/src'
-            config.output = './test/root/dist'
+        await build({ 
+            input: './test/root/src',
+            output: './test/root/dist'
         });
     });
 

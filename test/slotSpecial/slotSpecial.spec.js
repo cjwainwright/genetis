@@ -8,9 +8,9 @@ describe('special slot', () => {
     const outputDir = './test/slotSpecial/dist/';
 
     beforeAll(async () => {
-        await build(config => { 
-            config.input = './test/slotSpecial/src'
-            config.output = './test/slotSpecial/dist'
+        await build({ 
+            input: './test/slotSpecial/src',
+            output: './test/slotSpecial/dist'
         });
     });
 

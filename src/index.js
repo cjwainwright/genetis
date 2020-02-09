@@ -12,19 +12,15 @@ function getDefaultOptions() {
         include: ['**/*'],
         exclude: [],
         templateName: '_template.html',
-        isPartial(file) {
-            return path.extname(file) == '.html';
-        },
+        partialExtensions: ['.html', '.htm'],
         clean: true,
         fileEncoding: 'utf8'
     };
 }
 
-module.exports = async function build(configure) {
-    const options = getDefaultOptions();
-    if(typeof configure == 'function') {
-        configure(options);
-    }
+module.exports = async function build(userOptions) {
+    const defaultOptions = getDefaultOptions();
+    const options = { ...defaultOptions, ...userOptions };
 
     if(options.clean) {
         await deleteFiles(options.output);
@@ -37,9 +33,9 @@ module.exports = async function build(configure) {
     }
 
     await Promise.all(files.map(async file => {
-        if(options.templateName == path.basename(file)) {
+        if(isTemplate(file, options)) {
             console.log(`Ignoring template ${ file }`);
-        } else if(options.isPartial(file)) {
+        } else if(isPartial(file, options)) {
             await processPartial(file, options);
         } else {
             await copyFile(file, options);
@@ -55,6 +51,15 @@ async function copyFile(file, options) {
     await fs.promises.copyFile(file, output);
 
     console.log(`Copied file ${ output }`);
+}
+
+function isTemplate(file, options) {
+    return options.templateName == path.basename(file);
+}
+
+function isPartial(file, options) {
+    const ext = path.extname(file);
+    return options.partialExtensions.includes(ext);
 }
 
 async function processPartial(file, options) {

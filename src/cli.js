@@ -6,9 +6,9 @@ const build = require('./index');
 
 const configFile = path.join(process.cwd(), 'ssg.conf.js');
 fs.exists(configFile, exists => {
-    const config = exists ? require(configFile): c => {};
+    const userOptions = exists ? require(configFile): null;
     (async () => {
-        await build(config);
+        await build(userOptions);
     })();
 });
 

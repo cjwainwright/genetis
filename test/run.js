@@ -5,8 +5,8 @@ console.log(`Running tests for '${file}'`);
 
 // run a specific test for debugging
 (async () => {
-    await build(config => { 
-        config.input = `./test/${file}/src`
-        config.output = `./test/${file}/dist`
+    await build({ 
+        input: `./test/${file}/src`,
+        output: `./test/${file}/dist`
     });
 })();
