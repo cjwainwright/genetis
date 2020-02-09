@@ -17,13 +17,15 @@ You can create an npm script in your project's `package.json` to easily run SSG 
     "build": "static-site-generator"
 }
 ```
+Then to run SSG just run `npm run build`.
+
 You can also run SSG programmatically
 ```js
 var ssg = require('static-site-generator');
 
 (async () => {
-    await ssg(config => {
-        // modify the config accordingly
+    await ssg({
+        // config options
     });
 })();
 ```
@@ -237,29 +239,37 @@ Then the resulting html will refer to the image at the partial's level, not the 
 
 ## Configuration
 SSG has the following default options
-```js
+```json
 {
-    input: './src',
-    output: './dist',
-    include: ['**/*'],
-    exclude: [],
-    templateName: '_template.html',
-    isPartial(file) {
-        return path.extname(file) == '.html';
-    },
-    clean: true,
-    fileEncoding: 'utf8'
-};
+    "input": "./src",
+    "output": "./dist",
+    "include": ["**/*"],
+    "exclude": [],
+    "templateName": "_template.html",
+    "partialExtensions": [".html", ".htm"],
+    "clean": true,
+    "fileEncoding": "utf8"
+}
 ```
-If running SSG programmatically, you may override the default options by passing it a function, for example.
+
+To override these options you may include an `ssg.json` configuration file at the root of your project, and specify which options you wish to override. E.g.
+```json
+{
+    "output": "./www",
+    "partialExtensions": [".htm"]
+}
+```
+
+
+If running SSG programmatically you may override the default options by passing in a config object, for example.
 ```js
 var ssg = require('static-site-generator');
 var path = require('path');
 
 (async () => {
-    await ssg(config => {
-        config.output = './www';
-        config.isPartial = file => path.extname(file) == '.htm';
+    await ssg({
+        "output": "./www",
+        "partialExtensions": [".htm"]
     });
 })();
 ```
