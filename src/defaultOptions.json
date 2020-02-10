@@ -6,5 +6,8 @@
     "templateName": "_template.html",
     "partialExtensions": [".html", ".htm"],
     "clean": true,
-    "fileEncoding": "utf8"
+    "fileEncoding": "utf8",
+    "specialSlots": {
+        "head": "head"
+    }
 }

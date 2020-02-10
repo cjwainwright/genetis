@@ -10,7 +10,11 @@ describe('special slot', () => {
     beforeAll(async () => {
         await build({ 
             input: './test/slotSpecial/src',
-            output: './test/slotSpecial/dist'
+            output: './test/slotSpecial/dist',
+            specialSlots: {
+                head: 'head',
+                test: '#special-slot'
+            }
         });
     });
 
@@ -34,6 +38,10 @@ describe('special slot', () => {
 
         it('has populated head with the link tag', () => {
             expect(doc.querySelector('head > link').getAttribute('rel')).toEqual(`test`);
+        });
+
+        it('has populated the test special slot with the p tag', () => {
+            expect(doc.querySelector('#special-slot > #test').textContent).toEqual('Test special slot');
         });
     });
 });

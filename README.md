@@ -168,6 +168,14 @@ SSG comes with a special slot predefined to handle the case of the `<head>` elem
 <link slot="head" rel="stylesheet" href="page.css">
 ```
 
+It is possible to define your own custom special slots by overriding the `specialSlots` property on the config, the format is `{ <name>: <css-selector> }`. If you wish to preserve the "head" special slot along with your own, you'll have to include it in your override, e.g.
+```json
+"specialSlots": {
+    "head": "head",
+    "footer": "main > footer"
+}
+```
+
 ### Variables
 
 It is possible to consume _variables_ in your template files, and specify the values these variables should take in your partial html files. We achieve this by making use of the [HTML Microdata specification](https://html.spec.whatwg.org/multipage/microdata.html).
@@ -248,7 +256,10 @@ SSG has the following default options
     "templateName": "_template.html",
     "partialExtensions": [".html", ".htm"],
     "clean": true,
-    "fileEncoding": "utf8"
+    "fileEncoding": "utf8",
+    "specialSlots": {
+        "head": "head"
+    }
 }
 ```
 

@@ -22,7 +22,7 @@ module.exports = async function processPartial(file, options) {
     templates.forEach(template => {
         const fragment = JSDOM.fragment(template.html);
         tagUrls(fragment, template.relative);
-        include(dom.window.document, fragment);
+        include(dom.window.document, fragment, options.specialSlots);
     });
 
     updateUrls(dom.window.document);
@@ -69,7 +69,7 @@ function updateUrls(doc) {
     });
 }
 
-function include(doc, fragment) {
+function include(doc, fragment, specialSlots) {
     //process variables
     fragment.querySelectorAll('meta[itemprop]').forEach(data => {
         const property = data.getAttribute('itemprop');
@@ -80,11 +80,6 @@ function include(doc, fragment) {
             updateContent(item, value);
         });
     });
-
-    //special slots
-    const specialSlots = {
-        'head': 'head'
-    };
 
     Object.keys(specialSlots).forEach(name => {
         fragment.querySelectorAll(`[slot='${name}']`).forEach(content => {
