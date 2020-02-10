@@ -1,23 +1,27 @@
 const path = require('path');
-const defaultOptions = require('./defaultOptions.json');
 const log = require('./log');
-const copyFile = require('./copyFile');
+const defaultOptions = require('./defaultOptions.json');
+const copyFile = require('./file/copyFile');
+const deleteFiles = require('./file/deleteFiles');
+const getFiles = require('./file/getFiles');
 const processPartial = require('./processPartial');
-const deleteFiles = require('./deleteFiles');
-const getFiles = require('./getFiles');
 
 module.exports = async function build(userOptions) {
     const options = { ...defaultOptions, ...userOptions };
 
     if(options.clean) {
+        log(`Deleting files in ${options.output}`);
         await deleteFiles(options.output);
     }
 
+    log(`Searching for files in ${options.input}`);
     let files = [];
     for(let include of options.include) {
+        log(`Searching for files matching ${include}, exluding [${options.exclude.join(', ')}]`)
         let temp = await getFiles(include, options.exclude, options.input);
         files = files.concat(temp);
     }
+    log(`Found ${files.length} files for processing`)
 
     await Promise.all(files.map(async file => {
         if(isTemplate(file, options)) {
@@ -25,7 +29,8 @@ module.exports = async function build(userOptions) {
         } else if(isPartial(file, options)) {
             await processPartial(file, options);
         } else {
-            await copyFile(file, options);
+            log(`Copying file ${ file }, from ${options.input} to ${options.output}`);
+            await copyFile(file, options.input, options.output);
         }
     }));
 };
