@@ -1,6 +1,6 @@
 const path = require('path');
 const log = require('./log/log');
-const defaultOptions = require('./defaultOptions.json');
+const defaultOptions = require('./options/defaultOptions.json');
 const copyFile = require('./file/copyFile');
 const deleteFiles = require('./file/deleteFiles');
 const getFiles = require('./file/getFiles');
