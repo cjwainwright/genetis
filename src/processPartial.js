@@ -4,7 +4,7 @@ const url = require('url');
 const JSDOM = require('jsdom').JSDOM;
 const log = require('./log');
 const elementLinkAttributes = require('./elementLinkAttributes');
-const isRelativeUrl = require('./isRelativeUrl');
+const isRelativeUrl = require('./url/isRelativeUrl');
 const updateContent = require('./updateContent');
 const getTemplates = require('./getTemplates');
 
