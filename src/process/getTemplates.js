@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const log = require('./log');
+const log = require('../log/log');
 
 module.exports = async function getTemplates(file, options) {
     let html = await fs.promises.readFile(file, options.fileEncoding);

@@ -1,10 +1,10 @@
 const path = require('path');
-const log = require('./log');
+const log = require('./log/log');
 const defaultOptions = require('./defaultOptions.json');
 const copyFile = require('./file/copyFile');
 const deleteFiles = require('./file/deleteFiles');
 const getFiles = require('./file/getFiles');
-const processPartial = require('./processPartial');
+const processPartial = require('./process/processPartial');
 
 module.exports = async function build(userOptions) {
     const options = { ...defaultOptions, ...userOptions };

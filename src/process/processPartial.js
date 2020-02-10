@@ -2,10 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 const JSDOM = require('jsdom').JSDOM;
-const log = require('./log');
-const elementLinkAttributes = require('./elementLinkAttributes');
-const isRelativeUrl = require('./url/isRelativeUrl');
-const updateContent = require('./updateContent');
+const log = require('../log/log');
+const elementLinkAttributes = require('../html/elementLinkAttributes');
+const updateContent = require('../html/updateContent');
+const isRelativeUrl = require('../url/isRelativeUrl');
 const getTemplates = require('./getTemplates');
 
 module.exports = async function processPartial(file, options) {
