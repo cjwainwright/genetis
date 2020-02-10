@@ -1,30 +1,30 @@
-# Static Site Generator
+# genetis
 
 A generator for static sites, using standard html elements, no need to learn some other framework. Compose content into slots in templates, specify variables using meta tags.
 
 ## Setup
 
-Install the static site generator into your project
+Install genetis into your project
 ```
-npm install static-site-generator --save-dev 
+npm install genetis --save-dev 
 ```
 
-By default SSG will look in a `src` folder for the source to compile, and produce output in a `dist` folder. 
+By default genetis will look in a `src` folder for the source to compile, and produce output in a `dist` folder. 
 
-You can create an npm script in your project's `package.json` to easily run SSG as part of your build process
+You can create an npm script in your project's `package.json` to easily run genetis as part of your build process
 ```json
 "scripts": {
-    "build": "static-site-generator"
+    "build": "genetis"
 }
 ```
-Then to run SSG just run `npm run build`.
+Then to run genetis just run `npm run build`.
 
-You can also run SSG programmatically
+You can also run genetis programmatically
 ```js
-var ssg = require('static-site-generator');
+var genetis = require('genetis');
 
 (async () => {
-    await ssg({
+    await genetis({
         // config options
     });
 })();
@@ -32,12 +32,12 @@ var ssg = require('static-site-generator');
 
 ## A simple example
 
-Create a new project called `my-site`, and install SSG as in the previous section.
+Create a new project called `my-site`, and install genetis as in the previous section.
 ```
 mkdir my-site
 cd my-site
 npm init -y
-npm install static-site-generator --save-dev
+npm install genetis --save-dev
 ```
 
 Create a 'src' folder for your source html, and add three html files, as follows.
@@ -82,9 +82,9 @@ Create a 'src' folder for your source html, and add three html files, as follows
 ```
 Note that `home.html` and `contact.html` are not full html documents, they are treated as _document fragments_. As such they do not need the `html` element, nor do they need to be a single element at the top level, we'll refer to them as **partial html files**, or more simply just **partials**.
 
-That's our basic structure, now run SSG (as detailed in the previous section) and see what we end up with.
+That's our basic structure, now run genetis (as detailed in the previous section) and see what we end up with.
 
-SSG will process the contents of the `src` folder and output to a `dist` folder by default. In the `dist` folder we have two output html files, one for each of the partial html files. There is no output file for the template, this has been merged in with the partials to create the full output.
+genetis will process the contents of the `src` folder and output to a `dist` folder by default. In the `dist` folder we have two output html files, one for each of the partial html files. There is no output file for the template, this has been merged in with the partials to create the full output.
 ```
 📁 my-site
 ├─ 📁 dist
@@ -137,9 +137,9 @@ SSG will process the contents of the `src` folder and output to a `dist` folder 
 
 Each partial html file in your source will produce a corresponding html file in your output with the same name and path. Template files (which by default are those named `_template.html`) will not be output but rather utilised to build the final structure of the other html files.
 
-When processing a partial html file, if the html contains a root `<html>` element then no template will be used and the partial html will be passed to the output as is. If the partial html does not have a root `<html>` element, then SSG will look for a template file in which to include this partial's contents.
+When processing a partial html file, if the html contains a root `<html>` element then no template will be used and the partial html will be passed to the output as is. If the partial html does not have a root `<html>` element, then genetis will look for a template file in which to include this partial's contents.
 
-SSG will first look for a template file in the same folder as the partial. If it doesn't find one it will proceed searching higher and higher folders, until the root of the source folder.
+genetis will first look for a template file in the same folder as the partial. If it doesn't find one it will proceed searching higher and higher folders, until the root of the source folder.
 
 Once a template file is found, it is checked for `<slot>` elements. If a slot element is found (and it is not a named slot) then new html for the output of this partial is created by taking the template html and replacing the slot element with the contents of the current partial's html.
 
@@ -161,9 +161,9 @@ After all elements consumed by named slots have been processed, any remaining el
 
 ### Special slots
 
-Note, it is not possible to put a slot element in certain locations of your template, the prime example being in the `<head>` of the document. To work around this restriction SSG has the concept of special slots, these are slots with a predetermined name and behaviour.
+Note, it is not possible to put a slot element in certain locations of your template, the prime example being in the `<head>` of the document. To work around this restriction genetis has the concept of special slots, these are slots with a predetermined name and behaviour.
 
-SSG comes with a special slot predefined to handle the case of the `<head>` element. Any element in your partial html with slot attribute whose value is `head` will get appended to the end of the `<head>` element in your template. This is useful for things such as page specific stylesheets, e.g.
+genetis comes with a special slot predefined to handle the case of the `<head>` element. Any element in your partial html with slot attribute whose value is `head` will get appended to the end of the `<head>` element in your template. This is useful for things such as page specific stylesheets, e.g.
 ```html
 <link slot="head" rel="stylesheet" href="page.css">
 ```
@@ -229,7 +229,7 @@ But if you wanted to refer to the same image from inside `_template.html`, you w
 ```html
 <img src="pages/image.png">
 ```
-As the html in your output will be at the same level as the image, SSG will internally rewrite this URL in the template to point to the correct file in the output. If you wish to prevent this, you can give the element a special attribute `data-link-relative`. E.g. if you include the following in your template
+As the html in your output will be at the same level as the image, genetis will internally rewrite this URL in the template to point to the correct file in the output. If you wish to prevent this, you can give the element a special attribute `data-link-relative`. E.g. if you include the following in your template
 ```html
 <img src="image.png" data-link-relative>
 ```
@@ -246,7 +246,7 @@ Then the resulting html will refer to the image at the partial's level, not the 
 ```
 
 ## Configuration
-SSG has the following default options
+genetis has the following default options
 ```json
 {
     "input": "./src",
@@ -263,7 +263,7 @@ SSG has the following default options
 }
 ```
 
-To override these options you may include an `ssg.json` configuration file at the root of your project, and specify which options you wish to override. E.g.
+To override these options you may include a `genetis.json` configuration file at the root of your project, and specify which options you wish to override. E.g.
 ```json
 {
     "output": "./www",
@@ -272,13 +272,13 @@ To override these options you may include an `ssg.json` configuration file at th
 ```
 
 
-If running SSG programmatically you may override the default options by passing in a config object, for example.
+If running genetis programmatically you may override the default options by passing in a config object, for example.
 ```js
-var ssg = require('static-site-generator');
+var genetis = require('genetis');
 var path = require('path');
 
 (async () => {
-    await ssg({
+    await genetis({
         "output": "./www",
         "partialExtensions": [".htm"]
     });
