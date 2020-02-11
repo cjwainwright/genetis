@@ -11,6 +11,10 @@
   "keywords": [],
   "author": "Chris Wainwright (https://cjwainwright.co.uk)",
   "license": "MIT",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/cjwainwright/genetis"
+  },
   "dependencies": {
     "glob": "^7.1.4",
     "jsdom": "^15.1.1",
