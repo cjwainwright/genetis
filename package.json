@@ -9,7 +9,7 @@
     "test": "jasmine --config=jasmine.json"
   },
   "keywords": [],
-  "author": "",
+  "author": "Chris Wainwright (https://cjwainwright.co.uk)",
   "license": "MIT",
   "dependencies": {
     "glob": "^7.1.4",
