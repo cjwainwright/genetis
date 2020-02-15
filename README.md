@@ -1,17 +1,22 @@
 # genetis
 
-![](https://github.com/cjwainwright/genetis/workflows/CI%20build/badge.svg)
+![CI build](https://github.com/cjwainwright/genetis/workflows/CI%20build/badge.svg)
 
-A generator for static sites, using standard html elements, no need to learn some other framework. Compose content into slots in templates, specify variables using meta tags.
+A generator for static sites, using standard html elements, no need to learn some other framework. Compose content into slots in templates, specify variables using meta tags. Runs on node.
 
-## Setup
+## A simple example
 
-Install genetis into your project
+Create a new project called `my-site`.
 ```
-npm install genetis --save-dev 
+mkdir my-site
+cd my-site
+npm init -y
 ```
 
-By default genetis will look in a `src` folder for the source to compile, and produce output in a `dist` folder. 
+Install genetis as a devDependency
+```
+npm install genetis --save-dev
+```
 
 You can create an npm script in your project's `package.json` to easily run genetis as part of your build process
 ```json
@@ -19,30 +24,8 @@ You can create an npm script in your project's `package.json` to easily run gene
     "build": "genetis"
 }
 ```
-Then to run genetis just run `npm run build`.
 
-You can also run genetis programmatically
-```js
-var genetis = require('genetis');
-
-(async () => {
-    await genetis({
-        // config options
-    });
-})();
-```
-
-## A simple example
-
-Create a new project called `my-site`, and install genetis as in the previous section.
-```
-mkdir my-site
-cd my-site
-npm init -y
-npm install genetis --save-dev
-```
-
-Create a 'src' folder for your source html, and add three html files, as follows.
+Setup your source files. First create a `src` folder for your source html, and add three html files, as follows.
 ```
 📁 my-site
 ├─ 📁 src
@@ -84,7 +67,10 @@ Create a 'src' folder for your source html, and add three html files, as follows
 ```
 Note that `home.html` and `contact.html` are not full html documents, they are treated as _document fragments_. As such they do not need the `html` element, nor do they need to be a single element at the top level, we'll refer to them as **partial html files**, or more simply just **partials**.
 
-That's our basic structure, now run genetis (as detailed in the previous section) and see what we end up with.
+That's our basic structure, now run genetis using our npm script:
+```
+npm run build
+```
 
 genetis will process the contents of the `src` folder and output to a `dist` folder by default. In the `dist` folder we have two output html files, one for each of the partial html files. There is no output file for the template, this has been merged in with the partials to create the full output.
 ```
@@ -132,6 +118,8 @@ genetis will process the contents of the `src` folder and output to a `dist` fol
     </body>
 </html>
 ```
+
+The `dist` folder is then ready to publish to your static site hosting.
 
 ## Features
 
@@ -273,16 +261,18 @@ To override these options you may include a `genetis.json` configuration file at
 }
 ```
 
+## Running genetis programmatically
 
-If running genetis programmatically you may override the default options by passing in a config object, for example.
+You can run genetis programmatically. You may override the default options by passing in a config object, for example.
 ```js
 var genetis = require('genetis');
-var path = require('path');
 
 (async () => {
     await genetis({
         "output": "./www",
         "partialExtensions": [".htm"]
     });
+
+    console.log('Build complete');
 })();
 ```
