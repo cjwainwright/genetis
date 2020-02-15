@@ -14,8 +14,6 @@ describe('data', () => {
         });
     });
 
-it('fails', () => { expect(true).toBe(false); });
-
     it('creates an html file for each page', async () => {
         let stats = await fs.promises.stat(path.join(outputDir, 'page1.html'));
         expect(stats.isFile()).toBe(true);
