@@ -1,6 +1,6 @@
 {
   "name": "genetis",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "src/index.js",
   "bin": "src/cli.js",
@@ -11,10 +11,12 @@
   "keywords": [],
   "author": "Chris Wainwright (https://cjwainwright.co.uk)",
   "license": "MIT",
-  "files": [ "src/" ],
+  "files": [
+    "src/"
+  ],
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/cjwainwright/genetis"
+    "type": "git",
+    "url": "https://github.com/cjwainwright/genetis"
   },
   "dependencies": {
     "glob": "^7.1.4",
