@@ -1,6 +1,7 @@
 # genetis
 
 ![CI build](https://github.com/cjwainwright/genetis/workflows/CI%20build/badge.svg)
+![Publish](https://github.com/cjwainwright/genetis/workflows/Publish/badge.svg)
 
 A generator for static sites, using standard html elements, no need to learn some other framework. Compose content into slots in templates, specify variables using meta tags. Runs on node.
 
