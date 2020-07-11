@@ -4,6 +4,11 @@ const log = require('../log/log');
 
 module.exports = async function getTemplates(file, options) {
     let html = await fs.promises.readFile(file, options.fileEncoding);
+
+    if(options.stripBom) {
+        html = html.replace(/^\uFEFF/, '');
+    }
+
     let templates;
     if(isRootHtml(html)) {
         templates = [];
